@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: feature availability api - get config
+Globals:
+  Function:
+    Timeout: 30
+Outputs:
+  GetEntityConfigAPI:
+    Description: API Gateway endpoint URL for Prod stage for Feature Available - Get
+      Config function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/{entity}
+  GetEntityConfigFunction:
+    Description: Lambda Function - Feature Availability - Get Config ARN
+    Value:
+      Fn::GetAtt:
+      - GetEntityConfigFunction
+      - Arn
+  GetEntityConfigFunctionIamRole:
+    Description: Implicit IAM Role created for Lambda Function - Feature Availability
+      - Get Config
+    Value:
+      Fn::GetAtt:
+      - GetEntityConfigFunctionRole
+      - Arn
+Resources:
+  GetEntityConfigFunction:
+    Properties:
+      CodeUri: s3://sam-function-repo/7071797d7a2692ddd16a2e266927579f
+      Environment:
+        Variables:
+          FA_TABLE_NAME: feature-availability
+      Events:
+        GetEntityConfigEvent:
+          Properties:
+            Method: get
+            Path: /{entity}
+          Type: Api
+      Handler: app.lambda_handler
+      Policies:
+      - arn:aws:iam::348403518528:policy/AWSApiGatewayExecuteRole-DynamoDBReadyOnly
+      Runtime: python3.6
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31
